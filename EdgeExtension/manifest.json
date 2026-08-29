@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Записки ОК",
+  "version": "0.1.0",
+  "description": "Записки на ok.ru: ПКМ «Записка: ПЕР/СОО» -> картотека. Ядро v07g от донора context-vkru (provenance TASK-0154).",
+  "permissions": ["contextMenus", "storage"],
+  "background": { "service_worker": "src/background.js" },
+  "content_scripts": [
+    {
+      "matches": ["https://ok.ru/*"],
+      "js": [
+        "src/core/messaging.js",
+        "src/core/normalize.js",
+        "src/core/storage.js",
+        "src/ui/layer.js",
+        "src/content.js"
+      ],
+      "css": ["src/styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "host_permissions": ["https://ok.ru/*"]
+}
