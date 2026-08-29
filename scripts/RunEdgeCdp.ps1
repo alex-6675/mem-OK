@@ -1,13 +1,16 @@
 # RunEdgeCdp.ps1 — чистый Edge c CDP для тестов ok.ru (TASK-0160).
 # Профиль — ВСЕГДА вне репо. Чистота — по доказанному v03.
 #Requires -Version 7.0
-Set-StrictMode -Version Latest
-$ErrorActionPreference = 'Stop'
 
 param(
     [ValidateSet("s_admin","admin","moderator","editor","user_01")]
     [string]$Profile = "user_01"
 )
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+
+
 
 $ports = @{ s_admin=9222; admin=9223; moderator=9224; editor=9225; user_01=9226 }
 $Port = $ports[$Profile]
