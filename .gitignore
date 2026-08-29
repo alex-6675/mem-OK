@@ -1,5 +1,30 @@
-# TASK-0148
-runtime/
-*.env
-.edge_test_*
+# ============================================================
+# .gitignore — проект «mem-OK»
+# ============================================================
+
+# --- Сборка и артефакты ---
+
+dist/
+
+# --- Локальные данные AI-ассистентов ---
+.codeassistant/
+
+# --- Файлы ОС ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Логи ---
+*.log
+
+# --- Пакеты расширений (бинарные артефакты) ---
+*.crx
+*.xpi
+*.nex
+
+# --- Node.js ---
+dashboard/node_modules/
+node_modules/
+package-lock.json
+yarn.lock
 

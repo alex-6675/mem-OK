@@ -1,0 +1,35 @@
+/* Context VK.RU · styles.css · v07g
+ * Стекло и скальпель: отрисовка на собственном стекле, ВНЕ DOM VK
+ * (React не стирает стекло — оно не в его поддереве).
+ * Только классы с префиксом ctx-* — свой слой, атрибуты VK не трогаются.
+ */
+
+/* СТЕКЛО: неподвижный слой поверх страницы, сам не ловит события. */
+#ctx-glass {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2147483000;
+  overflow: hidden;
+}
+
+/* Дети стекла — абсолютно позиционированы (по координатам якорей). */
+#ctx-glass .ctx-g-hl,
+#ctx-glass .ctx-g-mark {
+  position: absolute;
+}
+
+/* Подложка ника (цвет карточки ~25% задаётся из JS). */
+.ctx-g-hl { border-radius: 2px; }
+
+/* «Грязь» — блеклость подложки. */
+.ctx-g-faded { opacity: .45; filter: grayscale(1); }
+
+/* Маркер ▲ — единственный интерактивный элемент стекла. */
+.ctx-g-mark {
+  color: #8a94a3;
+  font-size: 10px;
+  line-height: 1;
+  pointer-events: auto; /* стекло прозрачно для событий, маркер — кликабелен */
+  cursor: pointer;
+}

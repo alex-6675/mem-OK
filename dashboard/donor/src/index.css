@@ -1,0 +1,368 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Unbounded", "Golos Text", system-ui, sans-serif;
+  --font-body: "Golos Text", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", monospace;
+
+  --color-bg: #0b1017;
+  --color-panel: #101823;
+  --color-panel2: #15202e;
+  --color-inset: #0d141d;
+  --color-line: #1e2b3c;
+  --color-line2: #2b3c52;
+  --color-ink: #e7eef6;
+  --color-dim: #93a4b8;
+  --color-faint: #5d7085;
+  --color-steel: #6d9ad1;
+  --color-pass: #38b47e;
+  --color-warn: #d9a13d;
+  --color-fail: #e05a52;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: rgba(109, 154, 209, 0.35);
+  color: #fff;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #26384e transparent;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: #26384e;
+  border-radius: 8px;
+  border: 2px solid var(--color-bg);
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ---------- фоновые слои ---------- */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(109, 154, 209, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(109, 154, 209, 0.055) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 30%, transparent 78%);
+  -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 30%, transparent 78%);
+}
+
+.bg-glow {
+  background:
+    radial-gradient(900px 480px at 12% -8%, rgba(109, 154, 209, 0.16), transparent 62%),
+    radial-gradient(760px 520px at 92% 12%, rgba(56, 180, 126, 0.07), transparent 60%),
+    radial-gradient(900px 700px at 70% 110%, rgba(217, 161, 61, 0.06), transparent 60%);
+}
+
+.noise {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  opacity: 0.028;
+}
+
+/* ---------- reveal ---------- */
+.rv {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 0.61, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: opacity, transform;
+}
+.rv-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ---------- терминал ---------- */
+.term-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 15px;
+  background: var(--color-pass);
+  vertical-align: -2px;
+  margin-left: 2px;
+  animation: blink 1s steps(2, start) infinite;
+}
+@keyframes blink {
+  to {
+    visibility: hidden;
+  }
+}
+
+.term-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+}
+
+/* ---------- панель с уголками ---------- */
+.cornered {
+  position: relative;
+}
+.cornered::before,
+.cornered::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: var(--color-line2);
+  transition: border-color 0.3s ease;
+  pointer-events: none;
+}
+.cornered::before {
+  top: -1px;
+  left: -1px;
+  border-top: 2px solid;
+  border-left: 2px solid;
+  border-color: inherit;
+}
+.cornered::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 2px solid;
+  border-right: 2px solid;
+  border-color: inherit;
+}
+.cornered:hover::before,
+.cornered:hover::after {
+  border-color: var(--color-steel);
+}
+
+/* ---------- строки матрицы ---------- */
+.req-row {
+  border-left: 2px solid transparent;
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.25s ease;
+}
+.req-row:hover {
+  background: rgba(109, 154, 209, 0.06);
+  transform: translateX(4px);
+}
+.req-row[data-status="fail"]:hover {
+  border-left-color: var(--color-fail);
+}
+.req-row[data-status="warn"]:hover {
+  border-left-color: var(--color-warn);
+}
+.req-row[data-status="pass"]:hover {
+  border-left-color: var(--color-pass);
+}
+
+/* ---------- таймлайн ---------- */
+.stage-node {
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    background-color 0.25s ease;
+}
+.stage-btn:hover .stage-node {
+  transform: scale(1.25);
+}
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(109, 154, 209, 0.55);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(109, 154, 209, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(109, 154, 209, 0);
+  }
+}
+.pulse-now {
+  animation: pulse-ring 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.stage-detail {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.stage-detail.open {
+  grid-template-rows: 1fr;
+}
+.stage-detail > div {
+  overflow: hidden;
+}
+
+/* ---------- чекбоксы шагов ---------- */
+.step-check {
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease;
+}
+.step-check svg path {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  transition: stroke-dashoffset 0.3s ease 0.05s;
+}
+.step-done .step-check svg path {
+  stroke-dashoffset: 0;
+}
+.step-label {
+  transition:
+    color 0.25s ease,
+    opacity 0.25s ease;
+}
+.step-done .step-label {
+  color: var(--color-faint);
+  text-decoration: line-through;
+  text-decoration-color: rgba(93, 112, 133, 0.6);
+}
+
+.progress-fill {
+  transition: width 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* ---------- фильтры ---------- */
+.filter-btn {
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+/* ---------- просмотрщик кода ---------- */
+.code-scroll {
+  scrollbar-width: thin;
+}
+.tok-com {
+  color: #5d748c;
+  font-style: italic;
+}
+.tok-str {
+  color: #e4b458;
+}
+.tok-kw {
+  color: #6cc3e8;
+}
+.tok-lit {
+  color: #ff7a6b;
+}
+.tok-obj {
+  color: #e8f1f8;
+  font-weight: 600;
+}
+.tok-num {
+  color: #f0a868;
+}
+
+.tab-btn::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--color-steel);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.tab-btn:hover::after {
+  transform: scaleX(0.4);
+}
+.tab-btn.tab-active::after {
+  transform: scaleX(1);
+}
+.tab-btn:focus-visible {
+  outline: 1px solid var(--color-steel);
+  outline-offset: 2px;
+}
+
+.verdict-btn:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+/* ---------- sequence PING/PONG ---------- */
+@keyframes dash-flow {
+  to {
+    background-position-x: 22px;
+  }
+}
+.ping-flow,
+.pong-flow {
+  background-image: repeating-linear-gradient(
+    90deg,
+    currentColor 0 8px,
+    transparent 8px 14px
+  );
+  animation: dash-flow 0.9s linear infinite;
+}
+.ping-flow {
+  color: var(--color-steel);
+}
+.pong-flow {
+  color: var(--color-pass);
+  animation-direction: reverse;
+}
+.arrow-right {
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 9px solid var(--color-steel);
+}
+.arrow-left {
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-right: 9px solid var(--color-pass);
+}
+
+/* ---------- мигание статуса ---------- */
+@keyframes soft-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+.blink-soft {
+  animation: soft-blink 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .rv {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .term-cursor,
+  .pulse-now,
+  .blink-soft {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

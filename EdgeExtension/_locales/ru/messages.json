@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Context VK.RU",
+    "description": "Название расширения (отображается в edge://extensions)"
+  },
+  "extDescription": {
+    "message": "Точечные заметки и маркеры для сущностей vk.ru. Собственный UI-слой поверх портала, без вмешательства в его логику.",
+    "description": "Описание расширения (отображается в edge://extensions и магазине)"
+  }
+}

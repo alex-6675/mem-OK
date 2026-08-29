@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "__MSG_extName__",
+  "description": "__MSG_extDescription__",
+  "default_locale": "ru",
+  "version": "0.0.18",
+  "permissions": ["contextMenus", "storage"],
+  "action": {},
+  "background": {
+    "service_worker": "src/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://vk.ru/*"],
+      "js": [
+        "src/core/messaging.js",
+        "src/core/normalize.js",
+        "src/core/storage.js",
+        "src/ui/layer.js",
+        "src/content.js"
+      ],
+      "css": ["src/styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "host_permissions": ["https://vk.ru/*"]
+}

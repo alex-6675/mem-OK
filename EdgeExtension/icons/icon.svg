@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <!-- context-vkru · плейсхолдер-иконка (каркас m3). Для продакшена заменить на PNG 16/48/128. -->
+  <rect x="8" y="8" width="112" height="112" rx="24" fill="#2b6fb3"/>
+  <path d="M40 44 L64 32 L88 44 L88 72 C88 88 78 98 64 102 C50 98 40 88 40 72 Z"
+        fill="none" stroke="#ffffff" stroke-width="6" stroke-linejoin="round"/>
+  <circle cx="64" cy="62" r="9" fill="#ffffff"/>
+  <rect x="56" y="74" width="16" height="5" rx="2.5" fill="#ffffff"/>
+</svg>
