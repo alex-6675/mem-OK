@@ -1,13 +1,31 @@
 {
-  "label": "Edge CDP",
-  "type": "shell",
-  "command": "powershell",
-  "args": ["-File", "${workspaceFolder}/scripts/RunEdgeCdp.ps1"],
-  "problemMatcher": []
-},
-{
-  "label": "Build+Run Edge CDP",
-  "dependsOn": ["Build", "Edge CDP"],
-  "dependsOrder": "sequence",
-  "problemMatcher": []
+  // TASK-0162: валидный tasks.json (version 2.0.0, обёртка tasks[]).
+  // Используется pwsh — скрипты объявляют #Requires -Version 7.0.
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build",
+      "type": "shell",
+      "command": "pwsh",
+      "args": ["-File", "${workspaceFolder}/scripts/Build.ps1"],
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Edge CDP",
+      "type": "shell",
+      "command": "pwsh",
+      "args": ["-File", "${workspaceFolder}/scripts/RunEdgeCdp.ps1"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Build+Run Edge CDP",
+      "dependsOn": ["Build", "Edge CDP"],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    }
+  ]
 }

@@ -1,5 +1,5 @@
 {
-  // TASK-0005 · TASK-0100 (m3) — настройки workspace (не глобальные prefs).
+  // TASK-0005 · TASK-0100 (m3) · TASK-0162 — настройки workspace (не глобальные prefs).
   "editor.formatOnSave": false,
   "editor.tabSize": 2,
   "files.eol": "\n",
@@ -10,17 +10,20 @@
   },
 
   // Не наблюдать тяжёлые каталоги (скорость файлового наблюдателя).
+  // Профиль Edge теперь вне репо: .edge_test_* / Edge_test_ok (TASK-0162).
   "files.watcherExclude": {
     "**/node_modules/**": true,
     "**/dist/**": true,
-    "**/.edge-cdp-profile/**": true
+    "**/.edge_test_*/**": true,
+    "**/Edge_test_ok/**": true
   },
 
   // Поиск не заходит в артефакты и профиль Edge.
   "search.exclude": {
     "**/node_modules": true,
     "**/dist": true,
-    "**/.edge-cdp-profile": true,
+    "**/.edge_test_*": true,
+    "**/Edge_test_ok": true,
     "**/package-lock.json": true
   }
 }
