@@ -24,6 +24,8 @@ desktop.ini
 
 # --- Node.js ---
 dashboard/node_modules/
+dashboard/donor/node_modules/
+dashboard/donor/dist/
 node_modules/
 package-lock.json
 yarn.lock
