@@ -4,6 +4,8 @@
 
 # --- Сборка и артефакты ---
 
+.edge_test_*/
+*.log
 dist/
 
 # --- Локальные данные AI-ассистентов ---
@@ -29,5 +31,5 @@ dashboard/donor/dist/
 node_modules/
 package-lock.json
 yarn.lock
-dist/
+
 
