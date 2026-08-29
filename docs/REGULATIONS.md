@@ -40,7 +40,7 @@ SC: sourcecraft.dev/ermek-toptaev-1/context-vkru/issues/27 ·
 Агент — зрение (CDP 9222), диагностика без пользователя.
 
 ## Коммиты
-Conventional: feat/fix/docs/chore/refactor/diag/test + [TASK-NNN].
+Conventional: feat/fix/docs/chore/refactor/diag/test/infra + [TASK-NNN].
 context-vkru: 6 закрывающих (TASK-0102) — очередь, порядок сохранён.
 Фикс и refactor не смешивать.
 
