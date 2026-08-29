@@ -1,21 +1,24 @@
-# RunEdgeCdp.ps1 — чистый Edge c CDP для тестов ok.ru (TASK-0160).
-# Профиль — ВСЕГДА вне репо. Чистота — по доказанному v03.
+# RunEdgeCdp.ps1 — чистый Edge c CDP для тестов ok.ru.
 #Requires -Version 7.0
-
 param(
     [ValidateSet("s_admin","admin","moderator","editor","user_01")]
     [string]$Profile = "user_01"
 )
-
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-
-
+# Профиль — ВСЕГДА вне репо. Чистота — по доказанному v03.
 $ports = @{ s_admin=9222; admin=9223; moderator=9224; editor=9225; user_01=9226 }
 $Port = $ports[$Profile]
 
-$EdgePath   = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+# Фолбэк (TASK-0162): ищем msedge.exe в трёх стандартных путях, берём первый найденный.
+$EdgeCandidates = @(
+    "$env:ProgramFiles\Microsoft\Edge\Application\msedge.exe",
+    "${env:ProgramFiles(x86)}\Microsoft\Edge\Application\msedge.exe",
+    "$env:LocalAppData\Microsoft\Edge\Application\msedge.exe"
+)
+$EdgePath = $EdgeCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+
 $ProfileDir = "C:\Users\An\serv6675\Edge_test_ok\$Profile\"
 $DistDir    = Join-Path $PSScriptRoot ".." "dist"
 $repoRoot   = Split-Path -Parent $PSScriptRoot
@@ -24,7 +27,9 @@ $repoRoot   = Split-Path -Parent $PSScriptRoot
 if ($ProfileDir -like "$repoRoot*") {
     Write-Error "Профиль внутри репо запрещён"; exit 1
 }
-if (-not (Test-Path $EdgePath)) { Write-Error "Не найден Edge: $EdgePath"; exit 1 }
+if (-not $EdgePath -or -not (Test-Path $EdgePath)) {
+    Write-Error "Не найден Edge ни в одном из путей: $($EdgeCandidates -join ', ')"; exit 1
+}
 if (-not (Test-Path (Join-Path $DistDir "manifest.json"))) {
     Write-Error "dist/ без расширения: сначала pwsh scripts/Build.ps1"; exit 1
 }
