@@ -1,108 +1,645 @@
 <!DOCTYPE html>
-<!-- ======================================================================
-  мем-OK · эксплуатационный журнал ОДИНОКОГО СТРОИТЕЛЯ · TASK-0148
-  Продолжение строительства с точки эпикфейла VK.
-  Светлая тема по умолчанию + переключатель. Статика, ноль зависимостей.
-  Владельцу: секции ДВИЖЕНИЯ/РЕШЕНИЯ/ОТЛАДКА наполняются из logs/activity/.
-  Эксплуатационный дашборд — ЗАГЛУШКА: прикручивается после строительства
-  и прогона одиноким заказчиком.
-====================================================================== -->
 <html lang="ru" data-theme="light">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>мем-OK · журнал одинокого строителя</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
-<style>
-:root{--bg:#f2f4f1;--s:#ffffff;--s2:#f7f9f6;--ink:#1b2320;--mut:#63716b;--line:#dbe3dd;--own:#0e6b52;--own-soft:#e2efe9;--acc:#9a5b00;--mono:#4a5852;--ok:#1c8a5f;--err:#b3372c;--sh:0 1px 2px rgba(27,35,32,.05),0 14px 34px -18px rgba(27,35,32,.16)}
-[data-theme=dark]{--bg:#101513;--s:#171e1b;--s2:#1d2622;--ink:#e6ede9;--mut:#8ba098;--line:#2a352f;--own:#3cc79b;--own-soft:#123429;--acc:#e2a13d;--mono:#9db2aa;--ok:#3cc79b;--err:#e06a5e;--sh:0 1px 2px rgba(0,0,0,.4),0 18px 44px -18px rgba(0,0,0,.55)}
-*{box-sizing:border-box}html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:"Golos Text",system-ui,sans-serif;font-size:15px;line-height:1.55;transition:background .35s,color .35s}
-code,.mono{font-family:"JetBrains Mono",monospace}
-.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
-header{padding:42px 0 0;display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap}
-.kicker{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--own);font-weight:700;margin:0 0 10px}
-h1{font-family:Unbounded,sans-serif;font-weight:900;font-size:clamp(1.9rem,4.6vw,3rem);line-height:1.05;margin:0}
-h1 .t{font-weight:500;color:var(--mut)}
-.lede{margin:14px 0 0;max-width:58ch;color:var(--mut)}
-.tbtn{display:inline-flex;align-items:center;gap:8px;font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;color:var(--ink);background:var(--s);border:1px solid var(--line);border-radius:999px;padding:9px 16px;cursor:pointer;box-shadow:var(--sh)}
-[data-theme=light] .ic-sun{display:none}[data-theme=dark] .ic-moon{display:none}
-.timeline{margin:36px 0 8px;border-left:3px solid var(--line);padding-left:26px;display:flex;flex-direction:column;gap:22px}
-.ep{position:relative}
-.ep::before{content:"";position:absolute;left:-33px;top:4px;width:13px;height:13px;border-radius:50%;background:var(--s);border:3px solid var(--own)}
-.ep.fail::before{border-color:var(--err)}
-.ep.now::before{background:var(--own);box-shadow:0 0 0 5px var(--own-soft);animation:pulse 2s infinite}
-@keyframes pulse{0%{box-shadow:0 0 0 3px var(--own-soft)}70%{box-shadow:0 0 0 9px transparent}100%{box-shadow:0 0 0 3px transparent}}
-.ep h3{font-family:Unbounded,sans-serif;font-weight:700;font-size:.98rem;margin:0}
-.ep .d{color:var(--mut);font-size:13.5px;margin:4px 0 0}
-.badge{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 9px;border-radius:999px;border:1px solid var(--line);color:var(--mut);margin-left:8px;vertical-align:2px}
-.badge.fail{color:var(--err);border-color:var(--err)}.badge.ok{color:var(--ok);border-color:var(--ok)}.badge.now{color:var(--own);border-color:var(--own);background:var(--own-soft)}
-.cols{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:34px 0}
-@media(max-width:920px){.cols{grid-template-columns:1fr}}
-.sec{background:var(--s);border:1px solid var(--line);border-radius:12px;box-shadow:var(--sh);overflow:hidden}
-.sec-h{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--s2)}
-.sec-h .i{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:700;color:var(--own)}
-.sec-h h4{font-family:Unbounded,sans-serif;font-size:.85rem;font-weight:700;margin:0}
-.sec-b{padding:18px 16px;color:var(--mut);font-size:13px}
-.stub{border:1.5px dashed var(--line);border-radius:10px;padding:22px 18px;text-align:center;margin:30px 0 40px}
-.stub .t{font-family:"JetBrains Mono",monospace;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--acc);border:1px solid var(--acc);border-radius:999px;padding:3px 12px;display:inline-block;margin-bottom:10px}
-footer{border-top:1px solid var(--line);margin-top:10px;padding:18px 0 40px;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--mut);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
-.rv{opacity:0;transform:translateY(16px);transition:opacity .6s,transform .6s cubic-bezier(.22,.61,.36,1)}
-.rv.in{opacity:1;transform:none}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>mem-OK · стройка №5 · теперь мучаем ОК</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Russo+One&family=Golos+Text:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    /* =========================================================
+       ВЛАДЕЛЬЦУ. Это дашборд строителей мемориального контура.
+       Открывается с главного: сейчас мы на этапе 5 — «ТЕПЕРЬ МЫ
+       МУЧАЕМ ОК». Этапы 0–4 — журнал строительства от эпикфейла
+       VK. Данные секций ДВИЖЕНИЯ/РЕШЕНИЯ/ОТЛАДКА приходят из
+       src/data/{moves,decisions,debug}.ts через window.MEMOK.
+       Тема — светлая по умолчанию, переключатель справа сверху.
+       ========================================================= */
+
+    :root {
+      --bg: #f2f4f1;
+      --surface: #ffffff;
+      --surface2: #f7f9f6;
+      --ink: #161a1f;
+      --mut: #5b6572;
+      --line: #dde3e6;
+      --line-strong: #c6d0d6;
+      --vk: #0077ff;              /* VK — прошлое, эпикфейл (зачёркнуто) */
+      --vk-soft: #e3f0ff;
+      --fail: #c0392b;
+      --ok: #ee8208;              /* ОК — настоящее, «теперь мучаем» */
+      --ok-soft: #fdf1de;
+      --good: #1c8a5f;
+      --warn: #b07708;
+      --err: #b3372c;
+      --mono: #47555b;
+      --shadow: 0 1px 2px rgba(22,26,31,.05), 0 14px 34px -18px rgba(22,26,31,.16);
+      --glow-ok: rgba(238,130,8,.10);
+      --glow-vk: rgba(0,119,255,.07);
+    }
+    [data-theme="dark"] {
+      --bg: #11151b;
+      --surface: #181e26;
+      --surface2: #1f2731;
+      --ink: #e8ecef;
+      --mut: #8e9aa7;
+      --line: #2a333e;
+      --line-strong: #3a4552;
+      --vk: #4da3ff;
+      --vk-soft: #12283f;
+      --ok: #ffa333;
+      --ok-soft: #33240c;
+      --good: #3cc79b;
+      --warn: #e2a13d;
+      --err: #e06a5e;
+      --mono: #9fb2b8;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 18px 44px -18px rgba(0,0,0,.55);
+      --glow-ok: rgba(255,163,51,.07);
+      --glow-vk: rgba(77,163,255,.06);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Golos Text", "Segoe UI", system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      transition: background .35s ease, color .35s ease;
+    }
+    /* СЛОИ ФОНА: чертёжная сетка + два цветовых пятна (ОК-оранжевое
+       вверху справа — «мы тут», VK-синее слева — «откуда пришли»). */
+    body::before, body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+    body::before {
+      background:
+        radial-gradient(760px 500px at 92% 4%, var(--glow-ok), transparent 70%),
+        radial-gradient(620px 440px at 4% 90%, var(--glow-vk), transparent 70%);
+    }
+    body::after {
+      background-image:
+        linear-gradient(var(--line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--line) 1px, transparent 1px);
+      background-size: 42px 42px;
+      opacity: .14;
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,.95), transparent 72%);
+      -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,.95), transparent 72%);
+    }
+
+    code, .mono { font-family: "JetBrains Mono", ui-monospace, Consolas, monospace; }
+    .wrap { max-width: 1160px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+    /* ---------- БЕГУЩАЯ СТРОКА СТРОЙКИ ---------- */
+    .ticker {
+      position: relative; z-index: 2;
+      background: var(--ink); color: var(--bg);
+      overflow: hidden; white-space: nowrap;
+      border-bottom: 3px solid var(--ok);
+    }
+    [data-theme="dark"] .ticker { background: #0b0e12; color: #e8ecef; }
+    .ticker-track {
+      display: inline-block; padding: 7px 0;
+      font-family: "JetBrains Mono", monospace; font-size: 11px; font-weight: 600;
+      letter-spacing: .12em; text-transform: uppercase;
+      animation: tick 26s linear infinite;
+    }
+    .ticker-track b { color: var(--ok); }
+    @keyframes tick { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* ---------- ШАПКА ---------- */
+    .top {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 18px; padding: 22px 0 0; flex-wrap: wrap;
+    }
+    .brand { display: flex; align-items: center; gap: 13px; }
+    .brand .mark {
+      width: 44px; height: 44px; flex: none;
+      display: grid; place-items: center;
+      font-family: "Russo One", sans-serif; font-size: 20px; color: #fff;
+      background: var(--ok); border-radius: 10px;
+      box-shadow: 0 6px 18px -6px rgba(238,130,8,.55);
+    }
+    .brand .name { font-family: "Russo One", sans-serif; font-size: 1.28rem; letter-spacing: .02em; line-height: 1.1; }
+    .brand .sub { font-family: "JetBrains Mono", monospace; font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--mut); margin-top: 3px; }
+
+    .tbtn {
+      display: inline-flex; align-items: center; gap: 9px;
+      font-family: "JetBrains Mono", monospace; font-size: 12px; font-weight: 600;
+      color: var(--ink); background: var(--surface);
+      border: 1px solid var(--line-strong); border-radius: 999px;
+      padding: 9px 16px; cursor: pointer; box-shadow: var(--shadow);
+      transition: transform .18s ease, border-color .18s ease, background .35s ease;
+    }
+    .tbtn:hover { transform: translateY(-2px); border-color: var(--ok); }
+    .tbtn svg { width: 15px; height: 15px; }
+    [data-theme="light"] .ic-sun { display: none; }
+    [data-theme="dark"] .ic-moon { display: none; }
+
+    /* ---------- ОТКРЫВАЮЩИЙ ФЛАГ: «ТЕПЕРЬ МЫ МУЧАЕМ ОК» ---------- */
+    .flag {
+      margin-top: 30px;
+      position: relative;
+      background: var(--ok);
+      color: #fff;
+      border-radius: 16px;
+      padding: 30px 34px 28px;
+      overflow: hidden;
+      box-shadow: 0 20px 44px -20px rgba(238,130,8,.55);
+    }
+    .flag::after {
+      /* косые «строительные» полосы в углу */
+      content: ""; position: absolute; right: -60px; top: -60px;
+      width: 220px; height: 220px; transform: rotate(45deg);
+      background: repeating-linear-gradient(0deg, rgba(255,255,255,.16) 0 14px, transparent 14px 30px);
+      pointer-events: none;
+    }
+    .flag .tag {
+      display: inline-flex; align-items: center; gap: 9px;
+      font-family: "JetBrains Mono", monospace; font-size: 11px; font-weight: 700;
+      letter-spacing: .16em; text-transform: uppercase;
+      background: rgba(0,0,0,.18); border-radius: 999px; padding: 6px 14px;
+    }
+    .flag .tag .dot { width: 9px; height: 9px; border-radius: 50%; background: #fff; position: relative; }
+    .flag .tag .dot::after {
+      content: ""; position: absolute; inset: -4px; border-radius: 50%;
+      border: 2px solid #fff; opacity: .55; animation: pulse 2s ease-out infinite;
+    }
+    @keyframes pulse { 0% { transform: scale(.6); opacity:.8 } 70% { transform: scale(1.6); opacity:0 } 100% { opacity:0 } }
+    .flag h1 {
+      font-family: "Russo One", sans-serif;
+      font-size: clamp(1.9rem, 4.6vw, 3.1rem);
+      line-height: 1.02; letter-spacing: .01em;
+      margin: 16px 0 0; text-transform: uppercase;
+    }
+    .flag h1 em { font-style: normal; display: block; color: #ffe9c7; }
+    .flag .work {
+      display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; position: relative; z-index: 1;
+    }
+    .flag .work span {
+      font-size: 13px; font-weight: 600;
+      background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.35);
+      border-radius: 999px; padding: 7px 15px;
+      transition: transform .18s ease, background .18s ease;
+    }
+    .flag .work span:hover { transform: translateY(-2px); background: rgba(255,255,255,.24); }
+
+    /* ---------- ЛЕНТА ЭТАПОВ (журнал строительства) ---------- */
+    .timeline-head { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; margin: 40px 0 18px; flex-wrap: wrap; }
+    .timeline-head h2 { font-family: "Russo One", sans-serif; font-size: 1.25rem; letter-spacing: .02em; margin: 0; }
+    .timeline-head .hint { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--mut); }
+
+    .timeline { position: relative; padding-left: 34px; }
+    .timeline::before {
+      content: ""; position: absolute; left: 11px; top: 6px; bottom: 6px;
+      width: 2px; background: var(--line-strong);
+    }
+    .stage {
+      position: relative; margin-bottom: 16px;
+      background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+      padding: 16px 20px; box-shadow: var(--shadow);
+      transition: transform .22s ease, border-color .22s ease, background .35s ease;
+    }
+    .stage:hover { transform: translateX(5px); border-color: var(--line-strong); }
+    .stage .node {
+      position: absolute; left: -34px; top: 18px;
+      width: 24px; height: 24px; border-radius: 50%;
+      display: grid; place-items: center;
+      font-family: "JetBrains Mono", monospace; font-size: 11px; font-weight: 700;
+      background: var(--surface); border: 2px solid var(--line-strong); color: var(--mut);
+      z-index: 1;
+    }
+    .stage .top-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .stage .repo { font-family: "Russo One", sans-serif; font-size: 1.02rem; letter-spacing: .01em; }
+    .stage .meta { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--mono); }
+    .stage .desc { margin: 7px 0 0; font-size: 14px; color: var(--mut); }
+    .badge {
+      font-family: "JetBrains Mono", monospace; font-size: 10px; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase;
+      border-radius: 999px; border: 1px solid var(--line-strong); padding: 3px 10px; color: var(--mut);
+    }
+    .badge.fail { color: var(--vk); border-color: var(--vk); background: var(--vk-soft); }
+    .badge.done { color: var(--good); border-color: var(--good); background: color-mix(in srgb, var(--good) 10%, transparent); }
+    .badge.live { color: #fff; border: none; background: var(--ok); }
+
+    /* Этап 0 — эпикфейл: VK-синий, зачёркнутая судьба */
+    .stage.epicfail { border-left: 4px solid var(--vk); }
+    .stage.epicfail .node { border-color: var(--vk); color: var(--vk); }
+    .stage.epicfail .repo { color: var(--vk); text-decoration: line-through; text-decoration-thickness: 2px; text-decoration-color: var(--fail); }
+    /* Текущий этап (5) — оранжевый, живой */
+    .stage.current { border-left: 4px solid var(--ok); background: var(--ok-soft); border-color: var(--ok); }
+    .stage.current .node { background: var(--ok); border-color: var(--ok); color: #fff; }
+
+    /* ---------- СЧЁТЧИКИ ---------- */
+    .stats {
+      display: flex; flex-wrap: wrap; margin-top: 36px;
+      background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+      box-shadow: var(--shadow); overflow: hidden;
+    }
+    .stat {
+      flex: 1 1 0; min-width: 130px; padding: 16px 20px;
+      border-right: 1px solid var(--line);
+      transition: background .2s ease;
+    }
+    .stat:last-child { border-right: none; }
+    .stat:hover { background: var(--surface2); }
+    .stat b { display: block; font-family: "Russo One", sans-serif; font-size: 1.7rem; line-height: 1.1; }
+    .stat.ok b { color: var(--ok); }
+    .stat span { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--mut); }
+
+    /* ---------- СЕКЦИИ ОДИНОКОГО СТРОИТЕЛЯ ---------- */
+    .ledger-grid { display: grid; grid-template-columns: 7fr 5fr; gap: 24px; margin: 38px 0 8px; align-items: start; }
+    @media (max-width: 920px) { .ledger-grid { grid-template-columns: 1fr; } }
+    .ledger-col { display: flex; flex-direction: column; gap: 22px; }
+
+    .sec {
+      background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+      box-shadow: var(--shadow); overflow: hidden;
+      transition: background .35s ease, border-color .35s ease, transform .25s ease;
+    }
+    .sec:hover { transform: translateY(-2px); }
+    .sec-h {
+      display: flex; align-items: center; gap: 12px;
+      padding: 13px 18px; background: var(--surface2);
+      border-bottom: 1px solid var(--line);
+    }
+    .sec-h .idx { font-family: "JetBrains Mono", monospace; font-size: 11px; font-weight: 700; color: var(--ok); }
+    .sec-h h3 { font-family: "Russo One", sans-serif; font-size: .95rem; margin: 0; letter-spacing: .01em; }
+    .sec-h .chip {
+      margin-left: auto; font-family: "JetBrains Mono", monospace; font-size: 11px; font-weight: 700;
+      border: 1px solid var(--line-strong); border-radius: 999px; padding: 2px 9px; color: var(--mut);
+    }
+    .sec-b { padding: 6px 0; }
+
+    .row {
+      display: grid; align-items: baseline; gap: 12px;
+      padding: 11px 18px; border-bottom: 1px dashed var(--line);
+      transition: background .18s ease, transform .18s ease;
+    }
+    .row:last-child { border-bottom: none; }
+    .row:hover { background: var(--surface2); transform: translateX(3px); }
+    .row .m { font-family: "JetBrains Mono", monospace; font-size: 11.5px; color: var(--mono); white-space: nowrap; }
+    .row .id { font-family: "JetBrains Mono", monospace; font-size: 11px; font-weight: 700; color: var(--mut); white-space: nowrap; }
+    .row .t { font-weight: 600; }
+    .row .s { font-size: 13px; color: var(--mut); }
+
+    .dbg .row { grid-template-columns: 10px 92px 74px 1fr; font-family: "JetBrains Mono", monospace; font-size: 12px; }
+    .lvl { width: 8px; height: 8px; border-radius: 50%; align-self: center; }
+    .lvl.info { background: var(--good); }
+    .lvl.warn { background: var(--warn); }
+    .lvl.error { background: var(--err); }
+    .dbg .src { color: var(--ok); font-weight: 700; }
+    .dbg .txt { color: var(--mono); word-break: break-word; }
+
+    .empty {
+      margin: 14px 16px; padding: 22px 18px;
+      border: 1.5px dashed var(--line-strong); border-radius: 10px; text-align: center;
+    }
+    .empty .et {
+      display: inline-block; font-family: "JetBrains Mono", monospace; font-size: 10px; font-weight: 700;
+      letter-spacing: .16em; text-transform: uppercase; color: var(--mut);
+      border: 1px solid var(--line-strong); border-radius: 999px; padding: 3px 12px; margin-bottom: 8px;
+      animation: blink 2.6s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100% { opacity: 1 } 50% { opacity: .45 } }
+    .empty p { margin: 0; font-size: 13px; color: var(--mut); }
+    .empty code { font-size: 11.5px; color: var(--ok); background: var(--ok-soft); padding: 1px 7px; border-radius: 5px; }
+
+    footer {
+      margin: 30px 0 48px; padding-top: 18px; border-top: 1px solid var(--line);
+      display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+      font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--mut);
+    }
+    footer .r { color: var(--ok); }
+
+    .rv { opacity: 0; transform: translateY(18px);
+      transition: opacity .6s ease, transform .6s cubic-bezier(.22,.61,.36,1);
+      transition-delay: var(--d, 0ms);
+    }
+    .rv.in { opacity: 1; transform: none; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+      .rv { opacity: 1; transform: none; }
+      html { scroll-behavior: auto; }
+      .ticker-track { animation: none; }
+    }
+  </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <div>
-      <p class="kicker">мем-OK · TASK-0148 · одинокий строитель</p>
-      <h1>Журнал<br /><span class="t">строительства</span></h1>
-      <p class="lede">Продолжение с точки эпикфейла VK. Тощий контур: публикация + картотека + <code>logs/outgoing</code> + принятие комментариев под карточками.</p>
+
+  <!-- БЕГУЩАЯ СТРОКА: стройка идёт -->
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-track" id="tickerTrack">
+      стройка идёт · одинокий строитель · <b>ТЕПЕРЬ МУЧАЕМ ОК</b> · маркировка план А · ПКМ → карточка → база · страховка от дурака · приём волонтёров ·&nbsp;
     </div>
-    <button class="tbtn" id="tt" type="button">
-      <svg class="ic-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
-      <svg class="ic-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
-      <span id="tl">тёмная</span>
-    </button>
-  </header>
-
-  <!-- Вехи строительства -->
-  <div class="timeline">
-    <div class="ep fail rv"><h3>context-vkru <span class="badge fail">эпикфейл верстки</span></h3><p class="d">Ядро ушло в архив — верстка не сложилась. Донор структур и регламентов.</p></div>
-    <div class="ep rv"><h3>m3 <span class="badge ok">каркас</span></h3><p class="d">Каркас переноса: provenance-копии, затычки, dashboard «прошлое–настоящее–будущее».</p></div>
-    <div class="ep rv"><h3>mem-2026 <span class="badge">RC-Astro</span></h3><p class="d">Астро/генеалогическое ядро семьи RC. Донор REGULATIONS и координат.</p></div>
-    <div class="ep rv"><h3>mem-ok-s-admin <span class="badge ok">тощий</span></h3><p class="d">Публикация + картотека ЦАМО + <code>logs/outgoing</code> + принятие комментариев под карточками.</p></div>
-    <div class="ep now rv"><h3>mem-OK <span class="badge now">сборка · TASK-0148</span></h3><p class="d">Каркас из доноров: роли, протоколы, поисковый бот, шаблоны, RC-реестр.</p></div>
-    <div class="ep rv"><h3>далее <span class="badge">план</span></h3><p class="d">Тест маркировки → приём волонтёров (секция RC-OK).</p></div>
   </div>
 
-  <!-- Секции одинокого строителя -->
-  <div class="cols">
-    <div class="sec rv"><div class="sec-h"><span class="i">01</span><h4>Движения</h4></div><div class="sec-b">Записи v4 из <code>logs/activity/</code>. Появятся после первого прогона.</div></div>
-    <div class="sec rv"><div class="sec-h"><span class="i">02</span><h4>Решения</h4></div><div class="sec-b">Решения владельца: трек D, вилка имени, фото-ручное. Пока пусты.</div></div>
-    <div class="sec rv"><div class="sec-h"><span class="i">03</span><h4>Отладка</h4></div><div class="sec-b">События парсера/ингеста/публикации. Пока пусты.</div></div>
-  </div>
+  <div class="wrap">
 
-  <!-- Заглушка эксплуатационного дашборда -->
-  <div class="stub rv">
-    <span class="t">эксплуатационный дашборд</span>
-    <p style="margin:0;color:var(--mut);font-size:13.5px">прикручивается после строительства и прогона одиноким заказчиком</p>
-  </div>
+    <!-- ШАПКА -->
+    <header class="top">
+      <div class="brand">
+        <div class="mark">5</div>
+        <div>
+          <div class="name">mem-OK</div>
+          <div class="sub">стройка №5 · мемориальный контур</div>
+        </div>
+      </div>
+      <button class="tbtn" id="themeToggle" type="button" aria-pressed="false" title="Переключить тему">
+        <svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <span id="themeLabel">тёмная</span>
+      </button>
+    </header>
 
-  <footer>
-    <span>repo: <span style="color:var(--own)">mem-OK</span> · доноры: context-vkru · m3 · mem-2026 · mem-ok-s-admin</span>
-    <span>chore: mem-OK — карказ из доноров [TASK-0148]</span>
-  </footer>
-</div>
-<script>
-function applyTheme(n){document.documentElement.setAttribute("data-theme",n);document.getElementById("tl").textContent=n==="light"?"тёмная":"светлая";try{localStorage.setItem("memok-theme",n)}catch(e){}}
-(function(){var s=null;try{s=localStorage.getItem("memok-theme")}catch(e){}applyTheme(s==="dark"?"dark":"light")})(); /* по умолчанию светлая */
-document.getElementById("tt").addEventListener("click",function(){applyTheme(document.documentElement.getAttribute("data-theme")==="light"?"dark":"light")});
-var io=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){en.target.classList.add("in");io.unobserve(en.target)}})},{threshold:.12});
-document.querySelectorAll(".rv").forEach(function(el){io.observe(el)});
+    <!-- ОТКРЫВАЮЩИЙ ФЛАГ — главный экран: текущий этап -->
+    <section class="flag rv" style="--d:60ms">
+      <span class="tag"><span class="dot"></span> этап 5 · в работе · live</span>
+      <h1>Теперь мы<em>мучаем ОК</em></h1>
+      <div class="work">
+        <span>маркировка ОК · план А</span>
+        <span>ПКМ → карточка → база</span>
+        <span>регламент действий</span>
+        <span>приём волонтёров</span>
+      </div>
+    </section>
+
+    <!-- СЧЁТЧИКИ -->
+    <div class="stats rv" style="--d:140ms">
+      <div class="stat ok"><b data-count="stage">5</b><span>этап / 6</span></div>
+      <div class="stat"><b data-count="moves">0</b><span>движения</span></div>
+      <div class="stat"><b data-count="decisions">0</b><span>решения</span></div>
+      <div class="stat"><b data-count="debug">0</b><span>отладка</span></div>
+    </div>
+
+    <!-- ЖУРНАЛ СТРОИТЕЛЬСТВА -->
+    <div class="timeline-head rv" style="--d:180ms">
+      <h2>Журнал строительства — от эпикфейла VK</h2>
+      <span class="hint">0 → 5 · синее зачёркнуто = умерло, оранжевое = живое</span>
+    </div>
+
+    <div class="timeline">
+      <div class="stage epicfail rv" style="--d:220ms">
+        <span class="node">0</span>
+        <div class="top-row">
+          <span class="repo">context-vkru</span>
+          <span class="badge fail">эпикфейл VK</span>
+          <span class="badge">архив</span>
+        </div>
+        <p class="desc">Верстка умерла, ядро ушло в архив. Точка, с которой всё началось заново.</p>
+      </div>
+
+      <div class="stage rv" style="--d:260ms">
+        <span class="node">1</span>
+        <div class="top-row">
+          <span class="repo">m3</span>
+          <span class="badge done">готово</span>
+          <span class="meta">каркас · TASK-0100 · f4b21fc</span>
+        </div>
+        <p class="desc">Каркас территории и перенос (provenance).</p>
+      </div>
+
+      <div class="stage rv" style="--d:300ms">
+        <span class="node">2</span>
+        <div class="top-row">
+          <span class="repo">mem-2026</span>
+          <span class="badge done">готово</span>
+          <span class="meta">сайт · Astro 6.1.5 / EdgeOne 24.5.0</span>
+        </div>
+        <p class="desc">Публичный сайт контура.</p>
+      </div>
+
+      <div class="stage rv" style="--d:340ms">
+        <span class="node">3</span>
+        <div class="top-row">
+          <span class="repo">mem-ok-s-admin</span>
+          <span class="badge done">готово</span>
+          <span class="meta">тощий модуль · публикации · картотека ЕУ</span>
+        </div>
+        <p class="desc">Тощий модуль: публикации + картотека ЕУ, ничего лишнего.</p>
+      </div>
+
+      <div class="stage rv" style="--d:380ms">
+        <span class="node">4</span>
+        <div class="top-row">
+          <span class="repo">mem-OK</span>
+          <span class="badge done">готово</span>
+          <span class="meta">каркас · TASK-0148 · CORE (VENTURIS) · страховка от дурака</span>
+        </div>
+        <p class="desc">Сборка каркаса из доноров, CORE (VENTURIS), страховка от дурака.</p>
+      </div>
+
+      <div class="stage current rv" style="--d:420ms">
+        <span class="node">5</span>
+        <div class="top-row">
+          <span class="repo">ТЕПЕРЬ МЫ МУЧАЕМ ОК</span>
+          <span class="badge live">live</span>
+          <span class="meta">текущий этап</span>
+        </div>
+        <p class="desc">Маркировка ОК — план А (ПКМ → карточка → база), регламент действий, приём волонтёров.</p>
+      </div>
+    </div>
+
+    <!-- СЕКЦИИ ОДИНОКОГО СТРОИТЕЛЯ -->
+    <div class="timeline-head rv" style="--d:200ms">
+      <h2>Журнал одинокого строителя</h2>
+      <span class="hint">данные из src/data/*.ts (затычки)</span>
+    </div>
+
+    <div class="ledger-grid">
+      <!-- левая, широкая колонка: ДВИЖЕНИЯ -->
+      <div class="ledger-col">
+        <div class="sec rv" style="--d:240ms">
+          <div class="sec-h"><span class="idx">01</span><h3>Движения</h3><span class="chip" data-chip="moves">0</span></div>
+          <div class="sec-b" id="movesBody"></div>
+        </div>
+      </div>
+
+      <!-- правая колонка: РЕШЕНИЯ + ОТЛАДКА -->
+      <div class="ledger-col">
+        <div class="sec rv" style="--d:280ms">
+          <div class="sec-h"><span class="idx">02</span><h3>Решения</h3><span class="chip" data-chip="decisions">0</span></div>
+          <div class="sec-b" id="decisionsBody"></div>
+        </div>
+
+        <div class="sec dbg rv" style="--d:320ms">
+          <div class="sec-h"><span class="idx">03</span><h3>Отладка</h3><span class="chip" data-chip="debug">0</span></div>
+          <div class="sec-b" id="debugBody"></div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="rv" style="--d:360ms">
+      <span>repo: <span class="r">mem-OK</span> · тема: <span id="ftTheme">light</span></span>
+      <span>commit: feat: дашборд строителей от эпикфейла VK [TASK-0155]</span>
+    </footer>
+  </div>
+  <script>
+/* ДАННЫЕ дашборда строителей; вставить ВЫШЕ скрипта Кодера. */
+window.MEMOK = {
+  moves: [
+    { ts: 1787990000, id: "MV-03", text: "папки доноров перенесены ps1",
+      target: "3af6861" },
+    { ts: 1787986400, id: "MV-02", text: "страховка от дурака в REGLAMENT.md",
+      target: "4b8a4ed" },
+    { ts: 1787982800, id: "MV-01", text: "CORE: позывной VENTURIS",
+      target: "74cd7b8" }
+  ],
+  decisions: [
+    { id: "DC-03", title: "ТОЧКА: ТЕПЕРЬ мы мучаем ОК",
+      date: "2026-08-29", status: "в силе" },
+    { id: "DC-02", title: "внешний index.html — строителям; donor — шаблон на потом",
+      date: "2026-08-29", status: "в силе" },
+    { id: "DC-01", title: "эксплуатационный дашборд — после одиночного прогона",
+      date: "2026-08-29", status: "в силе" }
+  ],
+  debug: [
+    { level: "warn", ts: 1787990000, source: "владелец",
+      text: "дубль имён REGULATIONS/REGLAMENT — слить позже" },
+    { level: "info", ts: 1787986400, source: "ps1",
+      text: "RunEdgeCdp.ps1 приехал от донора" }
+  ]
+};
 </script>
+
+  <script>
+    /* =========================================================
+       ВЛАДЕЛЬЦУ. Данные приходят из src/data/{moves,decisions,
+       debug}.ts: после наполнения и компиляции они выставляют
+       window.MEMOK — журнал подхватит его вместо пустых массивов.
+       ========================================================= */
+    window.MEMOK = window.MEMOK || { moves: [], decisions: [], debug: [] };
+    var D = window.MEMOK;
+
+    function $(s) { return document.querySelector(s); }
+    function esc(v) {
+      return String(v == null ? "" : v)
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    }
+    function fmtTs(ts) {
+      if (!ts) return "—";
+      var d = new Date(ts * 1000);
+      var p = function (n) { return String(n).padStart(2, "0"); };
+      return p(d.getDate()) + "." + p(d.getMonth() + 1) + " " + p(d.getHours()) + ":" + p(d.getMinutes());
+    }
+    function emptyHtml(src) {
+      return '<div class="empty"><span class="et">затычка</span>' +
+        '<p>пусто · данные появятся из <code>' + esc(src) + "</code></p></div>";
+    }
+    function setChip(key, n) {
+      var el = document.querySelector('[data-chip="' + key + '"]');
+      if (el) el.textContent = n;
+    }
+
+    /* ---- РЕНДЕР СЕКЦИЙ ---- */
+    function renderMoves() {
+      var b = $("#movesBody");
+      setChip("moves", D.moves.length);
+      if (!D.moves.length) { b.innerHTML = emptyHtml("src/data/moves.ts"); return; }
+      b.innerHTML = D.moves.map(function (m) {
+        return '<div class="row" style="grid-template-columns:86px 58px 1fr">' +
+          '<span class="m">' + esc(fmtTs(m.ts)) + "</span>" +
+          '<span class="id">' + esc(m.id) + "</span>" +
+          '<span><span class="t">' + esc(m.text) + "</span>" +
+          (m.target ? '<div class="s mono">' + esc(m.target) + "</div>" : "") + "</span></div>";
+      }).join("");
+    }
+
+    function renderDecisions() {
+      var b = $("#decisionsBody");
+      setChip("decisions", D.decisions.length);
+      if (!D.decisions.length) { b.innerHTML = emptyHtml("src/data/decisions.ts"); return; }
+      b.innerHTML = D.decisions.map(function (d) {
+        var pill = d.status === "отменено" ? "err" : d.status === "в силе" ? "done" : "warn";
+        return '<div class="row" style="grid-template-columns:58px 1fr auto">' +
+          '<span class="id">' + esc(d.id) + "</span>" +
+          '<span><span class="t">' + esc(d.title) + "</span>" +
+          '<div class="s">' + esc(d.date) + "</div></span>" +
+          '<span class="badge ' + pill + '">' + esc(d.status) + "</span></div>";
+      }).join("");
+    }
+
+    function renderDebug() {
+      var b = $("#debugBody");
+      setChip("debug", D.debug.length);
+      if (!D.debug.length) { b.innerHTML = emptyHtml("src/data/debug.ts"); return; }
+      b.innerHTML = D.debug.map(function (l) {
+        return '<div class="row">' +
+          '<span class="lvl ' + esc(l.level) + '"></span>' +
+          '<span class="m">' + esc(fmtTs(l.ts)) + "</span>" +
+          '<span class="src">' + esc(l.source) + "</span>" +
+          '<span class="txt">' + esc(l.text) + "</span></div>";
+      }).join("");
+    }
+
+    /* ---- СЧЁТЧИКИ (анимированный подсчёт) ---- */
+    function countUp(el, target) {
+      var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (reduce || target === 0) { el.textContent = target; return; }
+      var t0 = null, dur = 700;
+      function step(t) {
+        if (!t0) t0 = t;
+        var k = Math.min(1, (t - t0) / dur);
+        el.textContent = Math.round(target * (1 - Math.pow(1 - k, 3)));
+        if (k < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+    function renderCounts() {
+      var map = {
+        stage: 5,
+        moves: D.moves.length,
+        decisions: D.decisions.length,
+        debug: D.debug.length,
+      };
+      Object.keys(map).forEach(function (k) {
+        var el = document.querySelector('[data-count="' + k + '"]');
+        if (el) countUp(el, map[k]);
+      });
+    }
+
+    /* ---- ТЕМА (светлая по умолчанию + переключатель) ---- */
+    function applyTheme(name) {
+      document.documentElement.setAttribute("data-theme", name);
+      $("#themeLabel").textContent = name === "light" ? "тёмная" : "светлая";
+      $("#themeToggle").setAttribute("aria-pressed", name === "dark");
+      $("#ftTheme").textContent = name;
+      try { localStorage.setItem("memok-theme", name); } catch (e) {}
+    }
+    (function initTheme() {
+      var saved = null;
+      try { saved = localStorage.getItem("memok-theme"); } catch (e) {}
+      applyTheme(saved === "dark" ? "dark" : "light");
+    })();
+    $("#themeToggle").addEventListener("click", function () {
+      applyTheme(document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light");
+    });
+
+    /* ---- БЕГУЩАЯ СТРОКА: дублируем контент для бесшовной петли ---- */
+    (function ticker() {
+      var t = $("#tickerTrack");
+      t.innerHTML = t.innerHTML + t.innerHTML;
+    })();
+
+    /* ---- ПОЯВЛЕНИЕ ПРИ СКРОЛЛЕ ---- */
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); }
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll(".rv").forEach(function (el) { io.observe(el); });
+
+    /* ---- СТАРТ ---- */
+    renderMoves(); renderDecisions(); renderDebug(); renderCounts();
+  </script>
 </body>
 </html>
