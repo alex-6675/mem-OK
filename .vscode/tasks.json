@@ -1,0 +1,13 @@
+{
+  "label": "Edge CDP",
+  "type": "shell",
+  "command": "powershell",
+  "args": ["-File", "${workspaceFolder}/scripts/RunEdgeCdp.ps1"],
+  "problemMatcher": []
+},
+{
+  "label": "Build+Run Edge CDP",
+  "dependsOn": ["Build", "Edge CDP"],
+  "dependsOrder": "sequence",
+  "problemMatcher": []
+}
