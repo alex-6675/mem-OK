@@ -4,8 +4,9 @@
 manifest.json, content.js, background.js. VK-вариант у донора НЕ тронут.
 
 ## 1. Предусловия
+- Запустите scripts\Build.ps1
 - Edge, режим разработчика (edge://extensions), «Загрузить распакованное» ->
-  mem-OK/EdgeExtension.
+  dist/
 - Версия в карточке: 0.1.0 («Записки ОК»). Ошибок нет.
 
 ## 2. ПКМ «Записка: ПЕР/СОО» (ok.ru)
