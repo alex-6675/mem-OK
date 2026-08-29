@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<!-- ======================================================================
+  мем-OK · эксплуатационный журнал ОДИНОКОГО СТРОИТЕЛЯ · TASK-0148
+  Продолжение строительства с точки эпикфейла VK.
+  Светлая тема по умолчанию + переключатель. Статика, ноль зависимостей.
+  Владельцу: секции ДВИЖЕНИЯ/РЕШЕНИЯ/ОТЛАДКА наполняются из logs/activity/.
+  Эксплуатационный дашборд — ЗАГЛУШКА: прикручивается после строительства
+  и прогона одиноким заказчиком.
+====================================================================== -->
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>мем-OK · журнал одинокого строителя</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
+<style>
+:root{--bg:#f2f4f1;--s:#ffffff;--s2:#f7f9f6;--ink:#1b2320;--mut:#63716b;--line:#dbe3dd;--own:#0e6b52;--own-soft:#e2efe9;--acc:#9a5b00;--mono:#4a5852;--ok:#1c8a5f;--err:#b3372c;--sh:0 1px 2px rgba(27,35,32,.05),0 14px 34px -18px rgba(27,35,32,.16)}
+[data-theme=dark]{--bg:#101513;--s:#171e1b;--s2:#1d2622;--ink:#e6ede9;--mut:#8ba098;--line:#2a352f;--own:#3cc79b;--own-soft:#123429;--acc:#e2a13d;--mono:#9db2aa;--ok:#3cc79b;--err:#e06a5e;--sh:0 1px 2px rgba(0,0,0,.4),0 18px 44px -18px rgba(0,0,0,.55)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Golos Text",system-ui,sans-serif;font-size:15px;line-height:1.55;transition:background .35s,color .35s}
+code,.mono{font-family:"JetBrains Mono",monospace}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+header{padding:42px 0 0;display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap}
+.kicker{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--own);font-weight:700;margin:0 0 10px}
+h1{font-family:Unbounded,sans-serif;font-weight:900;font-size:clamp(1.9rem,4.6vw,3rem);line-height:1.05;margin:0}
+h1 .t{font-weight:500;color:var(--mut)}
+.lede{margin:14px 0 0;max-width:58ch;color:var(--mut)}
+.tbtn{display:inline-flex;align-items:center;gap:8px;font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;color:var(--ink);background:var(--s);border:1px solid var(--line);border-radius:999px;padding:9px 16px;cursor:pointer;box-shadow:var(--sh)}
+[data-theme=light] .ic-sun{display:none}[data-theme=dark] .ic-moon{display:none}
+.timeline{margin:36px 0 8px;border-left:3px solid var(--line);padding-left:26px;display:flex;flex-direction:column;gap:22px}
+.ep{position:relative}
+.ep::before{content:"";position:absolute;left:-33px;top:4px;width:13px;height:13px;border-radius:50%;background:var(--s);border:3px solid var(--own)}
+.ep.fail::before{border-color:var(--err)}
+.ep.now::before{background:var(--own);box-shadow:0 0 0 5px var(--own-soft);animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 3px var(--own-soft)}70%{box-shadow:0 0 0 9px transparent}100%{box-shadow:0 0 0 3px transparent}}
+.ep h3{font-family:Unbounded,sans-serif;font-weight:700;font-size:.98rem;margin:0}
+.ep .d{color:var(--mut);font-size:13.5px;margin:4px 0 0}
+.badge{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 9px;border-radius:999px;border:1px solid var(--line);color:var(--mut);margin-left:8px;vertical-align:2px}
+.badge.fail{color:var(--err);border-color:var(--err)}.badge.ok{color:var(--ok);border-color:var(--ok)}.badge.now{color:var(--own);border-color:var(--own);background:var(--own-soft)}
+.cols{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:34px 0}
+@media(max-width:920px){.cols{grid-template-columns:1fr}}
+.sec{background:var(--s);border:1px solid var(--line);border-radius:12px;box-shadow:var(--sh);overflow:hidden}
+.sec-h{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--s2)}
+.sec-h .i{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:700;color:var(--own)}
+.sec-h h4{font-family:Unbounded,sans-serif;font-size:.85rem;font-weight:700;margin:0}
+.sec-b{padding:18px 16px;color:var(--mut);font-size:13px}
+.stub{border:1.5px dashed var(--line);border-radius:10px;padding:22px 18px;text-align:center;margin:30px 0 40px}
+.stub .t{font-family:"JetBrains Mono",monospace;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--acc);border:1px solid var(--acc);border-radius:999px;padding:3px 12px;display:inline-block;margin-bottom:10px}
+footer{border-top:1px solid var(--line);margin-top:10px;padding:18px 0 40px;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--mut);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.rv{opacity:0;transform:translateY(16px);transition:opacity .6s,transform .6s cubic-bezier(.22,.61,.36,1)}
+.rv.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <p class="kicker">мем-OK · TASK-0148 · одинокий строитель</p>
+      <h1>Журнал<br /><span class="t">строительства</span></h1>
+      <p class="lede">Продолжение с точки эпикфейла VK. Тощий контур: публикация + картотека + <code>logs/outgoing</code> + принятие комментариев под карточками.</p>
+    </div>
+    <button class="tbtn" id="tt" type="button">
+      <svg class="ic-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+      <svg class="ic-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      <span id="tl">тёмная</span>
+    </button>
+  </header>
+
+  <!-- Вехи строительства -->
+  <div class="timeline">
+    <div class="ep fail rv"><h3>context-vkru <span class="badge fail">эпикфейл верстки</span></h3><p class="d">Ядро ушло в архив — верстка не сложилась. Донор структур и регламентов.</p></div>
+    <div class="ep rv"><h3>m3 <span class="badge ok">каркас</span></h3><p class="d">Каркас переноса: provenance-копии, затычки, dashboard «прошлое–настоящее–будущее».</p></div>
+    <div class="ep rv"><h3>mem-2026 <span class="badge">RC-Astro</span></h3><p class="d">Астро/генеалогическое ядро семьи RC. Донор REGULATIONS и координат.</p></div>
+    <div class="ep rv"><h3>mem-ok-s-admin <span class="badge ok">тощий</span></h3><p class="d">Публикация + картотека ЦАМО + <code>logs/outgoing</code> + принятие комментариев под карточками.</p></div>
+    <div class="ep now rv"><h3>mem-OK <span class="badge now">сборка · TASK-0148</span></h3><p class="d">Каркас из доноров: роли, протоколы, поисковый бот, шаблоны, RC-реестр.</p></div>
+    <div class="ep rv"><h3>далее <span class="badge">план</span></h3><p class="d">Тест маркировки → приём волонтёров (секция RC-OK).</p></div>
+  </div>
+
+  <!-- Секции одинокого строителя -->
+  <div class="cols">
+    <div class="sec rv"><div class="sec-h"><span class="i">01</span><h4>Движения</h4></div><div class="sec-b">Записи v4 из <code>logs/activity/</code>. Появятся после первого прогона.</div></div>
+    <div class="sec rv"><div class="sec-h"><span class="i">02</span><h4>Решения</h4></div><div class="sec-b">Решения владельца: трек D, вилка имени, фото-ручное. Пока пусты.</div></div>
+    <div class="sec rv"><div class="sec-h"><span class="i">03</span><h4>Отладка</h4></div><div class="sec-b">События парсера/ингеста/публикации. Пока пусты.</div></div>
+  </div>
+
+  <!-- Заглушка эксплуатационного дашборда -->
+  <div class="stub rv">
+    <span class="t">эксплуатационный дашборд</span>
+    <p style="margin:0;color:var(--mut);font-size:13.5px">прикручивается после строительства и прогона одиноким заказчиком</p>
+  </div>
+
+  <footer>
+    <span>repo: <span style="color:var(--own)">mem-OK</span> · доноры: context-vkru · m3 · mem-2026 · mem-ok-s-admin</span>
+    <span>chore: mem-OK — карказ из доноров [TASK-0148]</span>
+  </footer>
+</div>
+<script>
+function applyTheme(n){document.documentElement.setAttribute("data-theme",n);document.getElementById("tl").textContent=n==="light"?"тёмная":"светлая";try{localStorage.setItem("memok-theme",n)}catch(e){}}
+(function(){var s=null;try{s=localStorage.getItem("memok-theme")}catch(e){}applyTheme(s==="dark"?"dark":"light")})(); /* по умолчанию светлая */
+document.getElementById("tt").addEventListener("click",function(){applyTheme(document.documentElement.getAttribute("data-theme")==="light"?"dark":"light")});
+var io=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){en.target.classList.add("in");io.unobserve(en.target)}})},{threshold:.12});
+document.querySelectorAll(".rv").forEach(function(el){io.observe(el)});
+</script>
+</body>
+</html>
