@@ -1,56 +1,38 @@
-/* Context VK.RU · src/content.js · v07g ФИНАЛЬНЫЙ
- * ТОНКАЯ ТОЧКА ВХОДА. Отрисовка — на стекле (src/ui/layer.js), ВНЕ DOM VK.
- * СКАЛЬПЕЛЬ — через доступ браузера «Разрешить только при нажатии»:
- * нет доступа = контент не запущен = стекла нет, тишина.
- *
- * Обязанности: старт, лог db, приём CAPTURED и CTX_SYNC, изъятие
- * (SAVE_AUTHOR / NAME_HINT / MET_HINT) — работает ВСЕГДА при данном доступе.
- * CTX_TOGGLE убран (скальпель = доступ браузера).
- * Vanilla JS, ноль зависимостей (§2.2).
+/* mem-OK · src/content.js · ok.ru-адаптация (TASK-0154).
+ * Тонкая точка входа для ok.ru. Ядро v07g (messaging, normalize, storage,
+ * layer) — от донора context-vkru, НЕ трогать. VK-вариант в доноре — НЕ трогать.
+ * ПКМ «Записка: ПЕР/СОО» создаётся в background.js (contextMenus).
+ * Единственный писатель — background.js (storage.saveDb).
  */
 (() => {
   "use strict";
-  if (location.host !== "vk.ru") return;
+  // ok.ru: основной домен и поддомены
+  if (!(location.host === "ok.ru" || location.host.endsWith(".ok.ru"))) return;
 
-  console.log("[CTX " + CTX_BUILD + "] content started — path: " + location.pathname);
+  console.log("[CTX " + CTX_BUILD + "] content started (ok.ru) — path: " + location.pathname);
 
-  const U = String.fromCharCode(95);
-  /* Корни комментариев (testid с подчёркиваниями собраны через U, по А1/§25). */
-  const COMMENT_ROOT_SEL =
-    '[data-testid="wall' + U + 'comments' + U + 'comment' + U + 'root"],' +
-    '[data-testid="wall' + U + 'comments' + U + 'comment' + U + 'in' + U + 'thread"]';
-  /* Дата комментария — ссылка wall…?reply=… (точка встречи). */
-  const COMMENT_DATE_SEL = 'a[data-testid="wall' + U + 'comment' + U + 'date"]';
-
-  /* ---------- стекло и индекс (layer.js) ---------- */
+  // Индекс по картотеке (для стекла/подхватов).
   let INDEX = { byId: new Map() };
 
   function buildIndex(db) {
-    const byId = new Map(); /* id -> карточка (▲) */
-    (db.cards || []).forEach((card) => {
-      (card.identities || []).forEach((it) => {
-        if (!it || !it.id) return;
-        if (!it.replyId) byId.set(it.id, card); /* метим только персоны/сообщества */
-      });
+    const byId = new Map();
+    const cards = Array.isArray(db.cards) ? db.cards : Object.values(db.cards || {});
+    cards.forEach((card) => {
+      const id = card && card.identities && card.identities.id;
+      if (id) byId.set(String(id), card);
     });
     INDEX = { byId: byId };
   }
 
-  /* ---------- старт: лог db + стекло ---------- */
+  // Старт: лог базы + стекло (layer из ядра).
   CTX_STORAGE.loadDb().then((db) => {
-    const list = db.cards.map((c) => {
-      const first = (c.identities && c.identities[0]) || {};
-      return c.cardId + (first.id ? " (" + first.id + ")" : "");
-    }).join(", ");
-    console.log("[CTX " + CTX_BUILD + "] db: " + db.cards.length + " cards" + (list ? ": " + list : ""));
+    const n = Array.isArray(db.cards) ? db.cards.length : Object.keys(db.cards || {}).length;
+    console.log("[CTX " + CTX_BUILD + "] kartoteka: " + n + " cards");
     buildIndex(db);
     if (typeof CTX_LAYER !== "undefined") CTX_LAYER.init();
   }).catch(() => {});
 
-  /* ---------- CTX_SYNC: клик по значку расширения ----------
-   * нет выделения → полная перерисовка («искать новые координаты»);
-   * есть текстовое выделение → ЛОКАЛЬНЫЙ СКАЛЬПЕЛЬ: маркеры только
-   * внутри ближайшего контейнера, содержащего выделение. */
+  // CTX_SYNC (клик по значку) — перерисовка стекла / локальный скальпель.
   chrome.runtime.onMessage.addListener((msg) => {
     if (!msg || msg.type !== CTX_MSG.CTX_SYNC) return;
     let scope = null;
@@ -63,67 +45,43 @@
     if (typeof CTX_LAYER !== "undefined") CTX_LAYER.init(scope);
   });
 
-  /* ---------- ПКМ по дате комментария → изъятие автора (SAVE_AUTHOR) ---------- */
-  document.addEventListener("contextmenu", (e) => {
-    const a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
-    if (!a) return;
-    const href = a.getAttribute("href") || "";
-    let abs;
-    try { abs = new URL(href, location.origin).href; } catch (err) { return; }
-    if (!CTX_NORMALIZE.replyOf(abs)) return; /* это не дата комментария */
-
-    const root = a.closest(COMMENT_ROOT_SEL);
-    if (!root) return;
-    const ownerA = root.querySelector('a[data-testid="comment-owner"]');
-    const authorHref = ownerA ? ownerA.getAttribute("href") : "";
-    if (!authorHref) return; /* автор не найден — не сохраняем */
-
-    chrome.runtime.sendMessage({
-      type: CTX_MSG.SAVE_AUTHOR,
-      payload: { authorHref: authorHref, metUrl: abs, page: location.href },
-    }).catch(() => {});
-  });
-
-  /* ---------- приём CAPTURED (лог изъятия + NAME_HINT + MET_HINT) ---------- */
+  // CAPTURED (изъятие записки) — лог + NAME_HINT (имя из первого якоря).
   chrome.runtime.onMessage.addListener((msg) => {
     if (!msg || msg.type !== CTX_MSG.CAPTURED) return;
     const p = msg.payload || {};
-    console.log("[CTX " + CTX_BUILD + "] captured | menu: " + p.menu +
-      " | portal: " + p.portal + " | id: " + p.id + " | type: " + p.type +
-      " | metPost: " + p.metPost +
-      " | link: " + p.link + " | page: " + p.page + " | db: " + (p.db || ""));
+    console.log("[CTX " + CTX_BUILD + "] zapiska | menu: " + p.menu +
+      " | id: " + p.id + " | type: " + p.type +
+      " | link: " + p.link + " | db: " + (p.db || ""));
 
-    /* NAME_HINT: первый якорь с тем же id и непустым текстом */
+    // NAME_HINT: первый якорь с тем же id и непустым текстом.
     if (p.id) {
       const anchors = document.querySelectorAll("a[href]");
       for (const a of anchors) {
         if (!a.textContent.trim()) continue;
+        // подхват: ok-ссылка, нормализованная к тому же id
         const href = a.getAttribute("href");
         if (!href) continue;
         let abs;
         try { abs = new URL(href, location.origin).href; } catch (e) { continue; }
-        const norm = CTX_NORMALIZE.normalize(abs, "save-person");
-        if (norm.id === p.id) {
+        const id = okIdOf(abs);
+        if (id === p.id) {
           chrome.runtime.sendMessage({
             type: CTX_MSG.NAME_HINT,
             payload: { id: p.id, name: a.textContent.trim() },
           }).catch(() => {});
-
-          /* ТОЧКА ВСТРЕЧИ = ПЕРВОЕ ОБЩЕНИЕ: если якорь внутри комментария —
-           * берём его дату (wall…?reply=…) как commentUrl. */
-          const commentRoot = a.closest(COMMENT_ROOT_SEL) || a.closest("li");
-          if (commentRoot) {
-            const dateA = commentRoot.querySelector(COMMENT_DATE_SEL);
-            if (dateA && dateA.href) {
-              chrome.runtime.sendMessage({
-                type: CTX_MSG.MET_HINT,
-                payload: { id: p.id, commentUrl: dateA.href },
-              }).catch(() => {});
-            }
-          }
           break;
         }
       }
     }
   });
+
+  // ok-ид из ссылки (ok-специфика; ядро normalize.js НЕ трогать).
+  function okIdOf(link) {
+    try {
+      const u = new URL(link);
+      const m = u.pathname.match(/^\/(profile|group)\/(\d+)/);
+      if (m) return m[1] + ":" + m[2];
+      return u.pathname;
+    } catch (e) { return link; }
+  }
 })();

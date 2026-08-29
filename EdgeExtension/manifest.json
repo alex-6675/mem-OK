@@ -1,17 +1,13 @@
 {
   "manifest_version": 3,
-  "name": "__MSG_extName__",
-  "description": "__MSG_extDescription__",
-  "default_locale": "ru",
-  "version": "0.0.18",
+  "name": "Записки ОК",
+  "version": "0.1.0",
+  "description": "Записки на ok.ru: ПКМ «Записка: ПЕР/СОО» -> картотека. Ядро v07g от донора context-vkru (provenance TASK-0154).",
   "permissions": ["contextMenus", "storage"],
-  "action": {},
-  "background": {
-    "service_worker": "src/background.js"
-  },
+  "background": { "service_worker": "src/background.js" },
   "content_scripts": [
     {
-      "matches": ["https://vk.ru/*"],
+      "matches": ["https://ok.ru/*"],
       "js": [
         "src/core/messaging.js",
         "src/core/normalize.js",
@@ -23,5 +19,5 @@
       "run_at": "document_idle"
     }
   ],
-  "host_permissions": ["https://vk.ru/*"]
+  "host_permissions": ["https://ok.ru/*"]
 }

@@ -1,54 +1,40 @@
-# RunEdgeCdp.ps1 — запуск Microsoft Edge с DevTools Protocol (CDP) для автоматизированных проверок.
-# TASK-0002 · TASK-0100 (m3)
+# RunEdgeCdp.ps1 — запуск Edge c --remote-debugging-port для тестов ok.ru (TASK-0154).
+# Ок-профили: .edge_test_s_admin | admin | moderator | editor | user_01, порты 9222-9226.
+# Происхождение: m3 (TASK-0100) <- context-vkru (TASK-0002). Provenance — в отчёте.
 #
 # Запуск:
-#   pwsh scripts/RunEdgeCdp.ps1                     # vk.ru на порту 9222
-#   pwsh scripts/RunEdgeCdp.ps1 -Port 9333          # другой порт
-#   pwsh scripts/RunEdgeCdp.ps1 -Url https://ok.ru  # другой URL
+#   pwsh scripts/RunEdgeCdp.ps1                    # по умолчанию: user_01, порт 9226
+#   pwsh scripts/RunEdgeCdp.ps1 -Profile s_admin   # порт 9222
 #
-# Изолированный профиль (.edge-cdp-profile) не затрагивает основной профиль пользователя.
-# После старта CDP доступен на http://localhost:<Port> (проверка: /json/version).
-
-[CmdletBinding()]
 param(
-    [int]$Port = 9222,
-    [string]$Url = "https://vk.ru/",
-    [string]$ProfileDir = (Join-Path $PSScriptRoot ".." ".edge-cdp-profile")
+    [ValidateSet("s_admin","admin","moderator","editor","user_01")]
+    [string]$Profile = "user_01"
 )
 
-$ErrorActionPreference = "Stop"
-
-# --- поиск исполняемого файла Edge ---
-$candidates = @(
-    "$env:ProgramFiles\Microsoft\Edge\Application\msedge.exe",
-    "${env:ProgramFiles(x86)}\Microsoft\Edge\Application\msedge.exe",
-    "$env:LocalAppData\Microsoft\Edge\Application\msedge.exe"
-)
-$edge = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
-if (-not $edge) {
-    Write-Error "msedge.exe не найден. Проверьте установку Microsoft Edge."
-    exit 1
+$ports = @{
+    "s_admin"   = 9222
+    "admin"     = 9223
+    "moderator" = 9224
+    "editor"    = 9225
+    "user_01"   = 9226
 }
+$port = $ports[$Profile]
+$profDir = Join-Path $PSScriptRoot ".edge_test_$Profile"
 
-# --- изолированный профиль ---
-$ProfileDir = (Resolve-Path -LiteralPath (New-Item -ItemType Directory -Force -Path $ProfileDir)).Path
+$edge = @(
+    "${env:ProgramFiles(x86)}\Microsoft\Edge\Application\msedge.exe",
+    "$env:ProgramFiles\Microsoft\Edge\Application\msedge.exe",
+    "$env:LocalAppData\Microsoft\Edge\Application\msedge.exe"
+) | Where-Object { Test-Path $_ } | Select-Object -First 1
 
-Write-Host "Edge:   $edge"
-Write-Host "CDP:    http://localhost:$Port"
-Write-Host "Профиль: $ProfileDir"
-Write-Host "URL:    $Url"
-Write-Host ""
+if (-not $edge) { Write-Error "Edge не найден"; exit 1 }
 
-$args = @(
-    "--remote-debugging-port=$Port",
-    "--user-data-dir=$ProfileDir",
-    "--no-first-run",
-    "--no-default-browser-check",
-    $Url
+if (-not (Test-Path $profDir)) { New-Item -ItemType Directory -Force -Path $profDir | Out-Null }
+
+Write-Host "Edge + CDP: профиль .$Profile -> порт $port" -ForegroundColor Cyan
+Start-Process $edge -ArgumentList @(
+    "--remote-debugging-port=$port",
+    "--user-data-dir=$profDir",
+    "https://ok.ru"
 )
-
-Start-Process -FilePath $edge -ArgumentList $args
-
-Write-Host ""
-Write-Host "Edge запущен с CDP на порту $Port."
-Write-Host "Проверка: Invoke-RestMethod http://localhost:$Port/json/version"
+Write-Host "CDP: http://127.0.0.1:$port  (профиль: $profDir)" -ForegroundColor Green
