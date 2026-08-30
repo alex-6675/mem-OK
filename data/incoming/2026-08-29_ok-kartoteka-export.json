@@ -1,0 +1,202 @@
+background.js:9 [CTX v07g] service worker started (ok.ru)
+background.js:78 [CTX v07g] записка в картотеке: ok-_staromukme (COMMUNITY) · total 1
+background.js:111 [CTX v07g] имя сохранено: ok-_staromukme -> Лента
+background.js:78 [CTX v07g] записка в картотеке: ok-profile:585967001317 (PERSON) · total 2
+background.js:111 [CTX v07g] имя сохранено: ok-profile:585967001317 -> Мадина Мусифуллина
+background.js:78 [CTX v07g] уже в картотеке: ok-profile:585967001317 · total 2
+background.js:113 [CTX v07g] имя НЕ тронуто: ok-profile:585967001317 (уже задано)
+background.js:78 [CTX v07g] записка в картотеке: ok-profile:597269008402 (PERSON) · total 3
+background.js:111 [CTX v07g] имя сохранено: ok-profile:597269008402 -> Лилия Папушина
+background.js:78 [CTX v07g] записка в картотеке: ok-profile:566143615596 (PERSON) · total 4
+background.js:111 [CTX v07g] имя сохранено: ok-profile:566143615596 -> Виктор Былин
+background.js:78 [CTX v07g] записка в картотеке: ok-profile:596418300449 (PERSON) · total 5
+background.js:111 [CTX v07g] имя сохранено: ok-profile:596418300449 -> Колбанова Тамара
+background.js:78 [CTX v07g] записка в картотеке: ok-profile:583565697142 (PERSON) · total 6
+background.js:111 [CTX v07g] имя сохранено: ok-profile:583565697142 -> Елбурус Гулийев
+background.js:78 [CTX v07g] записка в картотеке: ok-profile:910460194801 (PERSON) · total 7
+background.js:111 [CTX v07g] имя сохранено: ok-profile:910460194801 -> василина петрова
+background.js:78 [CTX v07g] записка в картотеке: ok-profile:563874696775 (PERSON) · total 8
+background.js:111 [CTX v07g] имя сохранено: ok-profile:563874696775 -> Надежда Кузнецова
+Warning: Don’t paste code into the DevTools Console that you don’t understand or haven’t reviewed yourself. This could allow attackers to steal your identity or take control of your computer. Please type “allow pasting” below and press Enter to allow pasting.
+allow pasting
+chrome.storage.local.get(null, o => console.log(JSON.stringify(o, null, 2)))
+undefined
+VM45:1 {
+  "ctxdb": {
+    "cards": [
+      {
+        "annotations": [],
+        "cardId": "ok-_staromukme",
+        "displayName": "Лента",
+        "external_id": null,
+        "history": [
+          {
+            "action": "captured (ok.ru)",
+            "ts": 1788049832
+          }
+        ],
+        "identities": {
+          "id": "/staromukme",
+          "name": "Лента",
+          "type": "COMMUNITY"
+        },
+        "meta": {},
+        "portal": "ok",
+        "status": "draft",
+        "updated_at": 1788049832
+      },
+      {
+        "annotations": [],
+        "cardId": "ok-profile:585967001317",
+        "displayName": "Мадина Мусифуллина",
+        "external_id": null,
+        "history": [
+          {
+            "action": "captured (ok.ru)",
+            "ts": 1788049950
+          },
+          {
+            "action": "captured (ok.ru)",
+            "ts": 1788050016
+          }
+        ],
+        "identities": {
+          "id": "profile:585967001317",
+          "name": "Мадина Мусифуллина",
+          "type": "PERSON"
+        },
+        "meta": {},
+        "portal": "ok",
+        "status": "draft",
+        "updated_at": 1788050016
+      },
+      {
+        "annotations": [],
+        "cardId": "ok-profile:597269008402",
+        "displayName": "Лилия Папушина",
+        "external_id": null,
+        "history": [
+          {
+            "action": "captured (ok.ru)",
+            "ts": 1788050098
+          }
+        ],
+        "identities": {
+          "id": "profile:597269008402",
+          "name": "Лилия Папушина",
+          "type": "PERSON"
+        },
+        "meta": {},
+        "portal": "ok",
+        "status": "draft",
+        "updated_at": 1788050098
+      },
+      {
+        "annotations": [],
+        "cardId": "ok-profile:566143615596",
+        "displayName": "Виктор Былин",
+        "external_id": null,
+        "history": [
+          {
+            "action": "captured (ok.ru)",
+            "ts": 1788050109
+          }
+        ],
+        "identities": {
+          "id": "profile:566143615596",
+          "name": "Виктор Былин",
+          "type": "PERSON"
+        },
+        "meta": {},
+        "portal": "ok",
+        "status": "draft",
+        "updated_at": 1788050109
+      },
+      {
+        "annotations": [],
+        "cardId": "ok-profile:596418300449",
+        "displayName": "Колбанова Тамара",
+        "external_id": null,
+        "history": [
+          {
+            "action": "captured (ok.ru)",
+            "ts": 1788050136
+          }
+        ],
+        "identities": {
+          "id": "profile:596418300449",
+          "name": "Колбанова Тамара",
+          "type": "PERSON"
+        },
+        "meta": {},
+        "portal": "ok",
+        "status": "draft",
+        "updated_at": 1788050136
+      },
+      {
+        "annotations": [],
+        "cardId": "ok-profile:583565697142",
+        "displayName": "Елбурус Гулийев",
+        "external_id": null,
+        "history": [
+          {
+            "action": "captured (ok.ru)",
+            "ts": 1788051214
+          }
+        ],
+        "identities": {
+          "id": "profile:583565697142",
+          "name": "Елбурус Гулийев",
+          "type": "PERSON"
+        },
+        "meta": {},
+        "portal": "ok",
+        "status": "draft",
+        "updated_at": 1788051214
+      },
+      {
+        "annotations": [],
+        "cardId": "ok-profile:910460194801",
+        "displayName": "василина петрова",
+        "external_id": null,
+        "history": [
+          {
+            "action": "captured (ok.ru)",
+            "ts": 1788051277
+          }
+        ],
+        "identities": {
+          "id": "profile:910460194801",
+          "name": "василина петрова",
+          "type": "PERSON"
+        },
+        "meta": {},
+        "portal": "ok",
+        "status": "draft",
+        "updated_at": 1788051277
+      },
+      {
+        "annotations": [],
+        "cardId": "ok-profile:563874696775",
+        "displayName": "Надежда Кузнецова",
+        "external_id": null,
+        "history": [
+          {
+            "action": "captured (ok.ru)",
+            "ts": 1788054495
+          }
+        ],
+        "identities": {
+          "id": "profile:563874696775",
+          "name": "Надежда Кузнецова",
+          "type": "PERSON"
+        },
+        "meta": {},
+        "portal": "ok",
+        "status": "draft",
+        "updated_at": 1788054495
+      }
+    ],
+    "version": 1
+  }
+}
