@@ -1,4 +1,4 @@
- <#
+<#
 .SYNOPSIS
     TASK-0173 «слон» — метка и дверь по эталону dmiandr/context.
 
@@ -7,13 +7,14 @@
     две точечные правки: importScripts в background.js и content_scripts+версия
     в manifest.json. Идемпотентен (повторный запуск безопасен).
 
-    Принцип (из эталона):
-      * ranks — открытая структура (число/поля не ограничены, старт пустой,
-        дефолтов от LLM нет);
+    Принцип (TASK-0173 окончательный, из эталона):
+      * ranks — открытая структура (управляющий добавляет/меняет, число и поля
+        не ограничены); НАЧАЛЬНЫЕ 9 градаций — дословно из defaultranks эталона
+        dmiandr/context (цвета, описания собеседников); LLM не фантазирует;
       * descript пишет только управляющий;
       * каждая запись за дверью: координата + время + автор (обязательно);
       * при загрузке страницы контент шлёт видимые имена -> background
-        возвращает статусы -> метки рисуются (персистентность);
+        возвращает статусы -> метки рисуются (персистентность, histatuses);
       * метка кликабельна -> дверь: статус, descript, история, действия
         сменить/скрыть/удалить (с подтверждением);
       * No implicit data removal — удаление только явное.
@@ -43,14 +44,31 @@ function Write-File([string]$rel, [string]$content) {
 $slonstore = @'
 /* mem-OK · src/core/slonstore.js · «слон» (TASK-0173).
  * Хранилище рангов и статусов. Ключ "ctxslon".
- * ranks — открытая структура (старт пустой, дефолтов нет).
+ * ranks — открытая структура (управляющий добавляет/меняет; число и поля
+ * не ограничены). Начальные 9 градаций перенесены ДОСЛОВНО из эталона
+ * dmiandr/context (defaultranks, chrome/background.js) — LLM не добавляет.
  * Запись — ТОЛЬКО из background (единственный писатель, ядро v07g). */
 (function () {
   "use strict";
   var KEY = "ctxslon";
 
+  /* Начальные ранги — дословно из dmiandr/context (TASK-0173, п.1,5). */
+  function defaultRanks() {
+    return [
+      {id: 0, rank: "Не читать", descript: "", bgcolor: "#FF0000", fontcolor: "#000000", bold: false, italic: false},
+      {id: 1, rank: "Не комментировать", descript: "", bgcolor: "#FFB6B6", fontcolor: "#000000", bold: false, italic: false},
+      {id: 2, rank: "Хам", descript: "Может сорваться на хамство без видимого повода", bgcolor: "#d3d52b", fontcolor: "#000000", bold: false, italic: false},
+      {id: 3, rank: "Обидчивый", descript: "Оскорбляется на любую нейтральную реплику, в которой ему чудится несогласие", bgcolor: "#9587ff", fontcolor: "#000000", bold: false, italic: false},
+      {id: 4, rank: "Религиозный", descript: "Тему религии не поднимать", bgcolor: "#a6a6a6", fontcolor: "#000000", bold: false, italic: false},
+      {id: 5, rank: "Упертый", descript: "Излагать мысли краткими фразами, без отступлений, не давать возможности заболтать", bgcolor: "#290cff", fontcolor: "#ffffff", bold: false, italic: false},
+      {id: 6, rank: "Не закончен разговор", descript: "Не начинать новых дискуссий пока не выполнены обещания по старым", bgcolor: "#29ffff", fontcolor: "#000000", bold: false, italic: false},
+      {id: 7, rank: "Хороший собеседник", descript: "Не значит, что он со мной согласен, значит что он умеет беседовать содержательно, без демагогии", bgcolor: "#29ff1b", fontcolor: "#000000", bold: false, italic: false},
+      {id: 8, rank: "Читать", descript: "", bgcolor: "#17760f", fontcolor: "#ffffff", bold: false, italic: false}
+    ];
+  }
+
   function defaultSlon() {
-    return { version: 1, ranks: [], statuses: {} };
+    return { version: 1, ranks: defaultRanks(), statuses: {} };
   }
 
   function loadSlon() {
@@ -129,8 +147,9 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
           res[coord] = {
             coord: coord,
             rankId: st.rankId == null ? null : st.rankId,
-            rankName: rank ? rank.name : "",
-            color: rank && rank.color ? rank.color : "",
+            rankName: rank ? rank.rank : "",
+            bgcolor: rank && rank.bgcolor ? rank.bgcolor : "",
+            fontcolor: rank && rank.fontcolor ? rank.fontcolor : "",
             descript: st.descript || "",
             hidden: !!st.hidden,
           };
@@ -183,11 +202,20 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
       case "SLON_LIST_RANKS": { out = db.ranks; break; }
 
       case "SLON_ADD_RANK": {
-        /* ranks — открытая структура: любые поля, id авто, descript пишет управляющий */
-        if (!p.name) { out = { ok: false, error: "нужно имя ранга" }; break; }
+        /* ranks — открытая структура: поля по эталону (rank/descript/bgcolor/fontcolor/
+           bold/italic), id авто; descript пишет управляющий. Доп. поля — через extra. */
+        if (!p.rank) { out = { ok: false, error: "нужно имя ранга" }; break; }
         var maxId = 0;
         db.ranks.forEach(function (r) { if ((r.id || 0) > maxId) maxId = r.id; });
-        var rank = { id: maxId + 1, name: p.name, descript: p.descript || "", color: p.color || "#8a94a3" };
+        var rank = {
+          id: maxId + 1,
+          rank: p.rank,
+          descript: p.descript || "",
+          bgcolor: p.bgcolor || "#8a94a3",
+          fontcolor: p.fontcolor || "#000000",
+          bold: !!p.bold,
+          italic: !!p.italic,
+        };
         if (p.extra && typeof p.extra === "object") {
           Object.keys(p.extra).forEach(function (k) { rank[k] = p.extra[k]; });
         }
@@ -302,7 +330,8 @@ $slonmarks = @'
       mk.title = "Слон: " + st.coord + (st.descript ? " — " + st.descript : "");
       mk.style.cssText = "position:absolute;pointer-events:auto;cursor:pointer;" +
         "left:" + (r.right + 4) + "px;top:" + (r.top - 1) + "px;" +
-        "background:" + (st.color || "#8a94a3") + ";color:#fff;font:600 10px/1.4 'Golos Text',sans-serif;" +
+        "background:" + (st.bgcolor || "#8a94a3") + ";color:" + (st.fontcolor || "#000000") + ";" +
+        "font:600 10px/1.4 'Golos Text',sans-serif;" +
         "padding:1px 6px;border-radius:9px;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.3);";
       mk.addEventListener("click", function (e) {
         e.preventDefault();
@@ -381,9 +410,10 @@ $slondoor = @'
   function badgeHtml(st) {
     var rank = null;
     for (var i = 0; i < state.ranks.length; i++) if (state.ranks[i].id === st.rankId) rank = state.ranks[i];
-    var name = rank ? rank.name : (st.rankId == null ? "без ранга" : "ранг #" + st.rankId);
-    var color = rank && rank.color ? rank.color : "#8a94a3";
-    return { name: name, color: color };
+    var name = rank ? rank.rank : (st.rankId == null ? "без ранга" : "ранг #" + st.rankId);
+    var bgcolor = rank && rank.bgcolor ? rank.bgcolor : "#8a94a3";
+    var fontcolor = rank && rank.fontcolor ? rank.fontcolor : "#000000";
+    return { name: name, bgcolor: bgcolor, fontcolor: fontcolor };
   }
 
   function render() {
@@ -400,7 +430,8 @@ $slondoor = @'
       var b = badgeHtml(st);
       var badge = document.createElement("span");
       badge.className = "badge";
-      badge.style.background = b.color;
+      badge.style.background = b.bgcolor;
+      badge.style.color = b.fontcolor;
       badge.textContent = b.name;
       cur.appendChild(badge);
       if (st.hidden) {
@@ -422,7 +453,7 @@ $slondoor = @'
     state.ranks.forEach(function (r) {
       var o = document.createElement("option");
       o.value = String(r.id);
-      o.textContent = r.name;
+      o.textContent = r.rank;
       if (st && st.rankId === r.id) o.selected = true;
       rankSel.appendChild(o);
     });
@@ -453,15 +484,15 @@ $slondoor = @'
       state.ranks.forEach(function (r) {
         var li = document.createElement("li");
         li.className = "rank-row";
-        var sw = document.createElement("span"); sw.className = "sw"; sw.style.background = r.color || "#8a94a3"; li.appendChild(sw);
-        var nm = document.createElement("span"); nm.className = "nm"; nm.textContent = r.name + (r.descript ? " — " + r.descript : ""); li.appendChild(nm);
+        var sw = document.createElement("span"); sw.className = "sw"; sw.style.background = r.bgcolor || "#8a94a3"; li.appendChild(sw);
+        var nm = document.createElement("span"); nm.className = "nm"; nm.textContent = r.rank + (r.descript ? " — " + r.descript : ""); li.appendChild(nm);
         var del = document.createElement("button");
         del.className = "mini danger";
         del.type = "button";
         del.textContent = "×";
         del.title = "удалить ранг";
         del.addEventListener("click", function () {
-          if (!confirm("Удалить ранг «" + r.name + "»? Действие явное (No implicit data removal).")) return;
+          if (!confirm("Удалить ранг «" + r.rank + "»? Действие явное (No implicit data removal).")) return;
           send("SLON_DEL_RANK", { id: r.id, confirm: true }).then(load);
         });
         li.appendChild(del);
@@ -511,9 +542,10 @@ $slondoor = @'
     var name = $("newRankName").value.trim();
     if (!name) { alert("Имя ранга обязательно."); return; }
     send("SLON_ADD_RANK", {
-      name: name,
+      rank: name,
       descript: $("newRankDesc").value,
-      color: $("newRankColor").value,
+      bgcolor: $("newRankColor").value,
+      /* fontcolor/bold/italic — по умолчанию из обработчика (эталонные) */
     }).then(function () {
       $("newRankName").value = "";
       $("newRankDesc").value = "";
@@ -776,4 +808,4 @@ Write-Host "  src/background.js (importScripts) · manifest.json (content_script
 Write-Host ""
 Write-Host "Ядро v07g (messaging/normalize/storage/layer) и ок-адаптация НЕ тронуты." -ForegroundColor DarkGray
 Write-Host "Далее: pwsh scripts/Build.ps1 -> Reload -> ok.ru -> ПКМ «Слон: статус…»" -ForegroundColor DarkGray
-Write-Host "Коммит: feat: слон — метка и дверь по эталону [TASK-0173]" -ForegroundColor Cyan
+Write-Host "Коммит: feat: слон — метка и дверь по эталону, ranks эталонные [TASK-0173]" -ForegroundColor Cyan
