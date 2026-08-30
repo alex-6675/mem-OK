@@ -39,7 +39,8 @@ if (-not (Test-Path $ProfileDir)) {
 }
 
 # Чистка (безопасно): только кэши. НЕ ТРОГАТЬ:
-# Local Extension Settings (БАЗА КАРТОЧЕК!), Local Storage, Preferences.
+# Local Extension Settings (БАЗА КАРТОЧЕК!), Local Storage.
+# Preferences правится точечно (TASK-0167) — только extensions.ui.developer_mode.
 foreach ($p in @("$ProfileDir\Default\Cache","$ProfileDir\Default\Code Cache",
     "$ProfileDir\Default\GPUCache","$ProfileDir\Default\ShaderCache",
     "$ProfileDir\Default\Service Worker\CacheStorage")) {
@@ -48,6 +49,33 @@ foreach ($p in @("$ProfileDir\Default\Cache","$ProfileDir\Default\Code Cache",
         Write-Host "Вычищено: $p" -ForegroundColor DarkGray
     }
 }
+
+# Developer mode по умолчанию (TASK-0167): расширения ставятся без танцев с
+# «Режимом разработчика» в edge://extensions. Preferences существует —
+# точечно дополняем (остальное НЕ перезаписываем); не существует — минимальный json.
+$PrefsDir  = Join-Path $ProfileDir 'Default'
+$PrefsPath = Join-Path $PrefsDir 'Preferences'
+if (-not (Test-Path $PrefsDir)) {
+    New-Item -ItemType Directory -Path $PrefsDir -Force | Out-Null
+}
+$prefs = @{}
+if (Test-Path $PrefsPath) {
+    try {
+        $rawPrefs = Get-Content -LiteralPath $PrefsPath -Raw -ErrorAction Stop
+        $parsed   = $rawPrefs | ConvertFrom-Json -AsHashtable -ErrorAction Stop
+        if ($parsed -is [System.Collections.IDictionary]) { $prefs = $parsed }
+    } catch {
+        Write-Host "Предупреждение: Preferences не читается — создаю минимальный" -ForegroundColor Yellow
+        $prefs = @{}
+    }
+}
+if (-not $prefs.ContainsKey('extensions')) { $prefs['extensions'] = @{} }
+if (-not ($prefs['extensions'] -is [System.Collections.IDictionary])) { $prefs['extensions'] = @{} }
+if (-not $prefs['extensions'].ContainsKey('ui')) { $prefs['extensions']['ui'] = @{} }
+if (-not ($prefs['extensions']['ui'] -is [System.Collections.IDictionary])) { $prefs['extensions']['ui'] = @{} }
+$prefs['extensions']['ui']['developer_mode'] = $true
+$prefs | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $PrefsPath -Encoding utf8 -NoNewline
+Write-Host "Developer mode: включён ($PrefsPath)" -ForegroundColor DarkGray
 
 $edgeArgs = @(
     "--user-data-dir=$ProfileDir", '--no-first-run',
