@@ -1,12 +1,13 @@
 {
   "manifest_version": 3,
   "name": "Записки ОК",
-  "version": "0.1.0",
+  "description": "Записка на карточку ОК: ПЕР/СОО → картотека → база (файл-первый).",
   "default_locale": "ru",
-  "action": {},
-  "description": "Записки на ok.ru: ПКМ «Записка: ПЕР/СОО» -> картотека. Ядро v07g от донора context-vkru (provenance TASK-0154).",
-  "permissions": ["contextMenus", "storage"],
-  "background": { "service_worker": "src/background.js" },
+  "version": "0.1.1",
+  "permissions": ["contextMenus", "storage", "downloads"],
+  "background": {
+    "service_worker": "src/background.js"
+  },
   "content_scripts": [
     {
       "matches": ["https://ok.ru/*"],
